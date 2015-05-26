@@ -1,5 +1,4 @@
 module IssuesHelper
-<<<<<<< HEAD
 
 	def reportable_url(reportable)
 		class_name = reportable.class.name
@@ -23,6 +22,4 @@ module IssuesHelper
 			nil
 		end
 	end
-=======
->>>>>>> e758767fb27a7e663817b1d7f73df6d3b40dd7f7
 end
