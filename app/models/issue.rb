@@ -2,7 +2,11 @@ class Issue < ActiveRecord::Base
 	belongs_to :reportable, :polymorphic => true
 	has_many :reports
 	validates :reportable_id, :uniqueness => { :scope => [ :reportable_type ] }
+<<<<<<< HEAD
 	belongs_to :user
+=======
+	belongs_to :user_id
+>>>>>>> e758767fb27a7e663817b1d7f73df6d3b40dd7f7
 
 	# Check if more statuses are needed
 	enum status: %w( open ignored resolved )
