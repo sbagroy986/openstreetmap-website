@@ -9,7 +9,7 @@
 	<%= select :status, nil, [['open', 0],['resolved',2],['ignored',1]],{:include_blank => "Select status"},data: { behavior: 'category_dropdown' } %>
 	<%= select :issue_type, nil, @issue_types,{:include_blank => "Select type"}, data: { behavior: 'category_dropdown' } %>
 	<%= text_field_tag :search_by_user, params[:search_by_user], placeholder: "Reported User" %>
-	<%= select :last_reported_by, nil, @users.all.collect  {|f| [f.display_name, f.id]} << ['Not updated',"nil"], {:include_blank => "Select last updated by"}, data: { behavior: 'category_dropdown' } %>
+	<%= select :last_updated_by, nil, @users.all.collect  {|f| [f.display_name, f.id]} << ['Not updated',"nil"], {:include_blank => "Select last updated by"}, data: { behavior: 'category_dropdown' } %>
 	<%= submit_tag "Search" %>
 <% end %>
 <br/>

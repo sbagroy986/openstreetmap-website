@@ -7,6 +7,7 @@ class IssuesController < ApplicationController
   before_action :check_permission, only: [:index, :show, :resolve,:open,:ignore,:comment]
   before_action :find_issue, only: [:show, :resolve, :reopen, :ignore]
   before_action :get_user_role, only: [:show, :index]
+  before_action :check_issue_type, only: [:show]
 
   helper_method :sort_column, :sort_direction
 
@@ -21,7 +22,7 @@ class IssuesController < ApplicationController
 
     @issues = Issue.where(issue_type: @user_role).order(sort_column + " " + sort_direction)
 
-    # If search
+    # If search_by_user
     if params[:search_by_user] and !params[:search_by_user].blank?
       @find_user = User.find_by_display_name(params[:search_by_user])
       if @find_user
@@ -31,22 +32,24 @@ class IssuesController < ApplicationController
       end
     end
 
-
+    # If status
     if params[:status] and !params[:status][0].blank?
       @issues = @issues.where(status: params[:status][0].to_i)
     end
-
+    
+    # If issue_type
     if params[:issue_type] and !params[:issue_type][0].blank?
       @issues = @issues.where(reportable_type: params[:issue_type][0])
     end
 
-    if @issues.first == nil
-        notice = t('issues.index.search.issues_not_found')      
+    # If last_updated_by
+    if params[:last_updated_by] and !params[:last_updated_by][0].blank?
+      last_reported_by = params[:last_updated_by][0].to_s == "nil" ? nil : params[:last_updated_by][0].to_i
+      @issues = @issues.where(updated_by: last_updated_by)
     end
 
-    if params[:last_reported_by] and !params[:last_reported_by][0].blank?
-      last_reported_by = params[:last_reported_by][0].to_s == "nil" ? nil : params[:last_reported_by][0].to_i
-      @issues = @issues.where(updated_by: last_reported_by)
+    if @issues.first == nil
+        notice = t('issues.index.search.issues_not_found')      
     end
 
     if notice
@@ -282,5 +285,11 @@ class IssuesController < ApplicationController
 
     def sort_direction
       %w[asc desc].include?(params[:direction]) ? params[:direction] : "asc"
+    end
+
+    def check_issue_type
+      if (@user.moderator? and @issue.issue_type == "administrator") or (@user.administrator? and @issue.issue_type == "moderator")
+        redirect_to issues_path, notice: "You cannot view that issue"
+      end
     end
 end

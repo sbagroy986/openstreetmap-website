@@ -15,15 +15,15 @@ class IssuesControllerTest < ActionController::TestCase
     assert_response :redirect
     assert_redirected_to root_path
 
-    # Access issues_path by admin
-    session[:user] = users(:administrator_user).id
-    get :index
-    assert_response :success
-
     # Access issues_path by moderator
     session[:user]= users(:moderator_user).id
     get :index
-    assert_response :success
+    assert_redirected_to issues_path
+
+    # Access issues_path by admin
+    session[:user] = users(:administrator_user).id
+    get :index
+    assert_redirected_to issues_path
   end
 
   def test_new_issue_without_login
@@ -177,6 +177,8 @@ class IssuesControllerTest < ActionController::TestCase
     # Login as administrator
     session[:user] = users(:administrator_user).id
 
+    # Search by user
+
     # No issues against the user
     get :index, search_by_user: "test1"
     assert_response :redirect
@@ -196,6 +198,18 @@ class IssuesControllerTest < ActionController::TestCase
 
     # Find Issue against user_id:2
     get :index, search_by_user: "test2"
+    assert_response :success
+
+    # Search by status
+    get :index, status: ['0']
+    assert_response :success
+
+    # Search by issue type
+    get :index, status: ['User']
+    assert_response :success
+
+    # Search by last_reported_by
+    get :index, last_reported_by: nil
     assert_response :success
   end
 
@@ -221,5 +235,43 @@ class IssuesControllerTest < ActionController::TestCase
     get :comment, id: @issue.id, :issue_comment => { body: "test comment" }
     assert_response :redirect
     assert_redirected_to @issue
+  end
+
+  def test_sort_issues_by_headers
+    # Create Issue
+    test_new_issue_after_login
+
+    # Login as administrator
+    session[:user] = users(:administrator_user).id
+
+    # Sort by status
+    get :index, sort: "status", direction: "asc"
+    assert_response :success    
+    get :index, sort: "status", direction: "desc"
+    assert_response :success
+
+    # Sort by number of reports    
+    get :index, sort: "report_count", direction: "asc"
+    assert_response :success    
+    get :index, sort: "report_count", direction: "desc"
+    assert_response :success
+
+    # Sort by updated_at    
+    get :index, sort: "updated_at", direction: "asc"
+    assert_response :success    
+    get :index, sort: "updated_at", direction: "desc"
+    assert_response :success
+
+    # Sort by updated_by    
+    get :index, sort: "updated_by", direction: "asc"
+    assert_response :success    
+    get :index, sort: "updated_by", direction: "desc"
+    assert_response :success
+
+    # Sort by reported_user_id  
+    get :index, sort: "reported_user_id", direction: "asc"
+    assert_response :success    
+    get :index, sort: "reported_user_id", direction: "desc"
+    assert_response :success
   end
 end
