@@ -44,7 +44,7 @@ class IssuesController < ApplicationController
 
     # If last_updated_by
     if params[:last_updated_by] and !params[:last_updated_by][0].blank?
-      last_reported_by = params[:last_updated_by][0].to_s == "nil" ? nil : params[:last_updated_by][0].to_i
+      last_updated_by= params[:last_updated_by][0].to_s == "nil" ? nil : params[:last_updated_by][0].to_i
       @issues = @issues.where(updated_by: last_updated_by)
     end
 
